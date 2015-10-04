@@ -1,46 +1,37 @@
 package group2.hackernews;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
+
+
+    TextView TopList;
+    HackerHelper getter = HackerHelper.getInstance();
+
+    String title_url = "https://hacker-news.firebaseio.com/v0/item/";
+
+    final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        API_Getter getter = new API_Getter();
-        String thing = "You got played sucka";
-        try {
-            thing = getter.get_topStories();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        //Check if a network is available
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()){
-            //Fill the initial data using API_Getter
-            Toast.makeText(MainActivity.this,thing, Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(MainActivity.this, "No network detected.  Entering Offline Mode", Toast.LENGTH_SHORT).show();
-        }
+        TopList = (TextView) findViewById(R.id.words);
+        get_topstories_array();
+
     }
 
     @Override
@@ -63,5 +54,66 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void load_article_title(String id) {
+        String myUrl = title_url + id + ".json";
+        CustomJSONObjectRequest request = new CustomJSONObjectRequest
+                (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //This is where you get the data from the stored JSON object.
+                        try {
+                            String title;
+                            title = response.getString("title");
+                            TopList.setText(title);
+
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Could not get data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        request.setPriority(Request.Priority.HIGH);
+        getter.add(request);
+    }
+
+    private void get_topstories_array() {
+        CustomJSONArrayRequest request = new CustomJSONArrayRequest
+                (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        String[] title_id_list = new String[500];
+                        //This is where you get the data from the stored JSON object.
+                        try {
+                            for(int x = 0; x < 500; x++) {
+                                title_id_list[x] = response.getString(x);
+                            }
+                            load_article_title(title_id_list[0]);
+
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "Could not get data", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        request.setPriority(Request.Priority.HIGH);
+        getter.add(request);
     }
 }
