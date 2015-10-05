@@ -1,9 +1,13 @@
 package group2.hackernews;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +21,9 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
 
-    TextView TopList;
+    Button article_1;
+    Button article_2;
+    Button article_3;
     HackerHelper getter = HackerHelper.getInstance();
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
@@ -29,7 +35,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TopList = (TextView) findViewById(R.id.words);
+        article_1 = (Button) findViewById(R.id.article1);
+        article_2 = (Button) findViewById(R.id.article2);
+        article_3 = (Button) findViewById(R.id.article3);
         get_topstories_array();
 
     }
@@ -56,7 +64,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void load_article_title(String id) {
+    public void browser1(String url){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+    }
+    private void load_article_title(String id, final int pos) {
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
                 (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
@@ -65,9 +77,39 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         //This is where you get the data from the stored JSON object.
                         try {
-                            String title;
-                            title = response.getString("title");
-                            TopList.setText(title);
+                            String title = response.getString("title");
+                            final String page_url = response.getString("url");
+                            switch(pos){
+                                case 0:
+                                    article_1.setText(title);
+                                    article_1.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                                    break;
+                                case 1:
+                                    article_2.setText(title);
+                                    article_2.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                                    break;
+                                case 2:
+                                    article_3.setText(title);
+                                    article_3.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                            }
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
@@ -87,18 +129,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void get_topstories_array() {
+
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
                 (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
 
                     @Override
                     public void onResponse(JSONArray response) {
                         String[] title_id_list = new String[500];
-                        //This is where you get the data from the stored JSON object.
+                        //Populates a list with the id numbers
                         try {
                             for(int x = 0; x < 500; x++) {
                                 title_id_list[x] = response.getString(x);
                             }
-                            load_article_title(title_id_list[0]);
+                            for(int y = 0; y <= 3; y++){
+                                load_article_title(title_id_list[y],y);
+                            }
+
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();
