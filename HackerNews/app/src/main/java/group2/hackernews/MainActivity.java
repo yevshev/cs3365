@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void get_topstories_array() {
+
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
                 (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
 
