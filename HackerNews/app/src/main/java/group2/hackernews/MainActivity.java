@@ -90,16 +90,23 @@ public class MainActivity extends AppCompatActivity {
         getter.add(request);
     }
 
-    private void get_topstories_array() {
+    private void get_stories_array(String stories) {
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
-                (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+                (Request.Method.GET, stories, null, new Response.Listener<JSONArray>() {
 
                     @Override
                     public void onResponse(JSONArray response) {
-                        String[] title_id_list = new String[500];
+
+                        //newStories and topStories return up to 500 ids, so checking if that is the current type
+                        int top_bound = 200;
+                        if (stories.equals("newStories") || stories.equals("topStories")) {
+                            top_bound = 500;
+                        }
+
+                        String[] title_id_list = new String[top_bound];
                         //This is where you get the data from the stored JSON object.
                         try {
-                            for(int x = 0; x < 500; x++) {
+                            for(int x = 0; x < top_bound; x++) {
                                 title_id_list[x] = response.getString(x);
                             }
                             load_article_title(title_id_list[0]);
@@ -213,5 +220,5 @@ public class MainActivity extends AppCompatActivity {
         request.setPriority(Request.Priority.HIGH);
         getter.add(request);
     }
-    
+
 }
