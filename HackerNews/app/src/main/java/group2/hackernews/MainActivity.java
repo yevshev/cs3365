@@ -1,5 +1,7 @@
 package group2.hackernews;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -62,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void browser1(String url){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+    }
     private void load_article_title(String id, final int pos) {
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
@@ -72,16 +78,37 @@ public class MainActivity extends AppCompatActivity {
                         //This is where you get the data from the stored JSON object.
                         try {
                             String title = response.getString("title");
-                            String page_url = response.getString("url");
+                            final String page_url = response.getString("url");
                             switch(pos){
                                 case 0:
                                     article_1.setText(title);
+                                    article_1.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
                                     break;
                                 case 1:
                                     article_2.setText(title);
+                                    article_2.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
                                     break;
                                 case 2:
                                     article_3.setText(title);
+                                    article_3.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
                             }
 
                         } catch (Exception e) {
