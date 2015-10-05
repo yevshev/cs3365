@@ -213,14 +213,5 @@ public class MainActivity extends AppCompatActivity {
         request.setPriority(Request.Priority.HIGH);
         getter.add(request);
     }
-
- /*   private void filter_page(String filter) {
-        if (filter.equals("job")) {
-            get_jobstories_array();
-        }
-        if (filter.equals("poll")) {
-            get_askstories_array();
-        }
-        if (filter.equals(""))
-    } */
+    
 }
