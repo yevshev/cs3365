@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,9 +19,9 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
 
-    TextView article_1;
-    TextView article_2;
-    TextView article_3;
+    Button article_1;
+    Button article_2;
+    Button article_3;
     HackerHelper getter = HackerHelper.getInstance();
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
@@ -31,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        article_1 = (TextView) findViewById(R.id.article1);
-        article_2 = (TextView) findViewById(R.id.article2);
-        article_3 = (TextView) findViewById(R.id.article3);
+        article_1 = (Button) findViewById(R.id.article1);
+        article_2 = (Button) findViewById(R.id.article2);
+        article_3 = (Button) findViewById(R.id.article3);
         get_topstories_array();
 
     }
@@ -69,16 +71,16 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         //This is where you get the data from the stored JSON object.
                         try {
-                            String title;
-                            title = response.getString("title");
+                            String title = response.getString("title");
+                            String page_url = response.getString("url");
                             switch(pos){
-                                case 1:
+                                case 0:
                                     article_1.setText(title);
                                     break;
-                                case 2:
+                                case 1:
                                     article_2.setText(title);
                                     break;
-                                case 3:
+                                case 2:
                                     article_3.setText(title);
                             }
 
