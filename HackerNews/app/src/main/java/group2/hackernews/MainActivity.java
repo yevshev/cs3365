@@ -24,7 +24,11 @@ public class MainActivity extends AppCompatActivity {
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
 
+
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
+    final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
+    final static String jobStories = "https://hacker-news.firebaseio.com/v0/jobstories.json";
+    final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         article_1 = (TextView) findViewById(R.id.article1);
         article_2 = (TextView) findViewById(R.id.article2);
         article_3 = (TextView) findViewById(R.id.article3);
-        get_topstories_array();
+        get_stories_array(topStories);
 
     }
 
@@ -99,16 +103,25 @@ public class MainActivity extends AppCompatActivity {
         getter.add(request);
     }
 
-    private void get_topstories_array() {
+    private void get_stories_array(final String stories) {
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
-                (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+                (Request.Method.GET, stories, null, new Response.Listener<JSONArray>() {
 
                     @Override
                     public void onResponse(JSONArray response) {
-                        String[] title_id_list = new String[500];
-                        //Populates a list with the id numbers
+
+                        //newStories and topStories return up to 500 ids, so checking if that is the current type
+                        int top_bound = 200;
+                        if (stories.equals("newStories") || stories.equals("topStories")) {
+                            top_bound = 500;
+                        }
+
+                        String[] title_id_list = new String[top_bound];
+                        //This is where you get the data from the stored JSON object.
+
+
                         try {
-                            for(int x = 0; x < 500; x++) {
+                            for(int x = 0; x < top_bound; x++) {
                                 title_id_list[x] = response.getString(x);
                             }
                             for(int y = 0; y <= 3; y++){
@@ -132,4 +145,5 @@ public class MainActivity extends AppCompatActivity {
         request.setPriority(Request.Priority.HIGH);
         getter.add(request);
     }
+
 }
