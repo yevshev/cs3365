@@ -17,7 +17,9 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
 
-    TextView TopList;
+    TextView article_1;
+    TextView article_2;
+    TextView article_3;
     HackerHelper getter = HackerHelper.getInstance();
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
@@ -33,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        TopList = (TextView) findViewById(R.id.words);
-        get_topstories_array();
+        article_1 = (TextView) findViewById(R.id.article1);
+        article_2 = (TextView) findViewById(R.id.article2);
+        article_3 = (TextView) findViewById(R.id.article3);
+        get_stories_array(topStories);
 
     }
 
@@ -60,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void load_article_title(String id) {
+    private void load_article_title(String id, final int pos) {
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
                 (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
@@ -71,7 +75,16 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             String title;
                             title = response.getString("title");
-                            TopList.setText(title);
+                            switch(pos){
+                                case 1:
+                                    article_1.setText(title);
+                                    break;
+                                case 2:
+                                    article_2.setText(title);
+                                    break;
+                                case 3:
+                                    article_3.setText(title);
+                            }
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
@@ -90,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         getter.add(request);
     }
 
-    private void get_stories_array(String stories) {
+    private void get_stories_array(final String stories) {
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
                 (Request.Method.GET, stories, null, new Response.Listener<JSONArray>() {
 
@@ -105,11 +118,16 @@ public class MainActivity extends AppCompatActivity {
 
                         String[] title_id_list = new String[top_bound];
                         //This is where you get the data from the stored JSON object.
+
+
                         try {
                             for(int x = 0; x < top_bound; x++) {
                                 title_id_list[x] = response.getString(x);
                             }
-                            load_article_title(title_id_list[0]);
+                            for(int y = 0; y <= 3; y++){
+                                load_article_title(title_id_list[y],y);
+                            }
+
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();

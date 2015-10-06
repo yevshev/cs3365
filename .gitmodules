@@ -1,3 +1,0 @@
-[submodule "HackerNews/volley"]
-	path = HackerNews/volley
-	url = https://android.googlesource.com/platform/frameworks/volley
