@@ -1,37 +1,81 @@
 package group2.hackernews;
 
+import android.app.AlertDialog;
+import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.DataSetObserver;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ListView;
+import android.app.ListActivity;
 
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
 
 
-    TextView TopList;
+    Button article_1;
+    Button article_2;
+    Button article_3;
     HackerHelper getter = HackerHelper.getInstance();
+    ListView list;
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
 
+
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
+    final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
+    final static String jobStories = "https://hacker-news.firebaseio.com/v0/jobstories.json";
+    final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
+
+    private ArrayList<Story> stories = new ArrayList<Story>();
+    private ArrayList<String> some = new ArrayList<String>();
+    private ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        TopList = (TextView) findViewById(R.id.words);
-        get_topstories_array();
-
+        /*article_1 = (Button) findViewById(R.id.article1);
+        article_2 = (Button) findViewById(R.id.article2);
+        article_3 = (Button) findViewById(R.id.article3);*/
+        list = (ListView) findViewById(R.id.list);
+        adapter = new StoryListAdapter(list.getContext(), R.layout.list_item, stories);
+        //adapter = new ArrayAdapter(this, R.layout.item_simple_text, some);
+        list.setAdapter(adapter);
+        //get_stories_array(topStories);
+        doSomethingPlease();
+        //Storing string resources into Array
     }
 
     @Override
@@ -56,7 +100,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void load_article_title(String id) {
+    public void browser1(String url){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        startActivity(browserIntent);
+    }
+    private void load_article_title(String id, final int pos) {
+        RequestQueue requestQueue = Volley.newRequestQueue(list.getContext());
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
                 (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
@@ -65,9 +114,44 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
                         //This is where you get the data from the stored JSON object.
                         try {
-                            String title;
-                            title = response.getString("title");
-                            TopList.setText(title);
+                            Story story = new Story();
+                            story.title = response.getString("title");
+                            story.by = response.getString("by");
+                            story.score = Integer.toString(pos);
+                            stories.add(story);
+                            adapter.notifyDataSetChanged();
+                            //final String page_url = response.getString("url");
+                            /*switch(pos){
+                                case 0:
+                                    article_1.setText(title);
+                                    article_1.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                                    break;
+                                case 1:
+                                    article_2.setText(title);
+                                    article_2.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                                    break;
+                                case 2:
+                                    article_3.setText(title);
+                                    article_3.setOnClickListener(
+                                            new Button.OnClickListener() {
+                                                public void onClick(View v) {
+                                                    browser1(page_url);
+                                                }
+                                            }
+                                    );
+                            }*/
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
@@ -82,23 +166,38 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        request.setPriority(Request.Priority.HIGH);
-        getter.add(request);
+//        request.setPriority(Request.Priority.HIGH);
+//        getter.add(request);
+        requestQueue.add(request);
     }
 
-    private void get_topstories_array() {
+    private void get_stories_array(final String urlstories) {
+
+        RequestQueue requestQueue = Volley.newRequestQueue(list.getContext());
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
-                (Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+                (Request.Method.GET, urlstories, null, new Response.Listener<JSONArray>() {
 
                     @Override
                     public void onResponse(JSONArray response) {
-                        String[] title_id_list = new String[500];
+
+                        //newStories and topStories return up to 500 ids, so checking if that is the current type
+                        int top_bound = 200;
+                        if (urlstories.equals("newStories") || urlstories.equals("topStories")) {
+                            top_bound = 500;
+                        }
+
+                        String[] title_id_list = new String[response.length()];
                         //This is where you get the data from the stored JSON object.
+
+
                         try {
-                            for(int x = 0; x < 500; x++) {
+                            for(int x = 0; x < response.length(); x++) {
                                 title_id_list[x] = response.getString(x);
                             }
-                            load_article_title(title_id_list[0]);
+                            for(int y = 0; y < response.length(); y++){
+                                load_article_title(title_id_list[y],y);
+                            }
+                            adapter.notifyDataSetChanged();
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();
@@ -113,7 +212,69 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        request.setPriority(Request.Priority.HIGH);
-        getter.add(request);
+//        request.setPriority(Request.Priority.HIGH);
+//        getter.add(request);
+        requestQueue.add(request);
+    }
+
+    private void doSomethingPlease(){
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                try{
+                    for (int i=0;i<response.length()/5;i++){
+                        nowMakeMeHappy(response.getString(i));
+                    }
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                new AlertDialog.Builder(getApplicationContext())
+                        .setMessage(error.getMessage())
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .show();
+            }
+        });
+        rq.add(jsonArrayRequest);
+    }
+
+    private void nowMakeMeHappy(String id){
+        String uri = title_url + id + ".json";
+        RequestQueue rq = Volley.newRequestQueue(this);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    Story story = new Story();
+                    story.title = response.getString("title");
+                    story.by    = response.getString("by");
+                    stories.add(story);
+                    adapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                new AlertDialog.Builder(getApplicationContext())
+                        .setMessage(error.getMessage())
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .show();
+            }
+        });
+        rq.add(jsonObjectRequest);
     }
 }
