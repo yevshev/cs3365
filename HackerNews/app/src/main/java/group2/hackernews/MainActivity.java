@@ -1,6 +1,8 @@
 package group2.hackernews;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.FragmentTransaction;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -17,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
@@ -40,6 +43,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.xml.transform.Source;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     Button article_2;
     Button article_3;
     HackerHelper getter = HackerHelper.getInstance();
-    ListView list;
+    ListView topList;
+    ListView jobList;
 
     String title_url = "https://hacker-news.firebaseio.com/v0/item/";
 
@@ -58,9 +63,10 @@ public class MainActivity extends AppCompatActivity {
     final static String jobStories = "https://hacker-news.firebaseio.com/v0/jobstories.json";
     final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
 
-    private ArrayList<Story> stories = new ArrayList<Story>();
-    private ArrayList<String> some = new ArrayList<String>();
-    private ArrayAdapter adapter;
+    private ArrayList<Story> stories = new ArrayList<>();
+    private ArrayList<String> some = new ArrayList<>();
+    private StoryListAdapter topAdapter;
+    private StoryListAdapter jobAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +75,31 @@ public class MainActivity extends AppCompatActivity {
         /*article_1 = (Button) findViewById(R.id.article1);
         article_2 = (Button) findViewById(R.id.article2);
         article_3 = (Button) findViewById(R.id.article3);*/
-        list = (ListView) findViewById(R.id.list);
-        adapter = new StoryListAdapter(list.getContext(), R.layout.list_item, stories);
+
+        ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
+        //Find the main listview
+        topList = (ListView) findViewById(R.id.list);
+
+        topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
         //adapter = new ArrayAdapter(this, R.layout.item_simple_text, some);
-        list.setAdapter(adapter);
+        topList.setAdapter(topAdapter);
         //get_stories_array(topStories);
-        doSomethingPlease();
+        doSomethingPlease(topStories, topAdapter);
+
         //Storing string resources into Array
+        topList.setClickable(true);
+        topList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+                Story o = (Story) topList.getItemAtPosition(position);
+                if (o.uri == null)
+                    Toast.makeText(getApplicationContext(), "Can't open article", Toast.LENGTH_LONG).show();
+                browser1(o.uri);
+            }
+        });
+        progressDialog.dismiss();
     }
 
     @Override
@@ -105,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(browserIntent);
     }
     private void load_article_title(String id, final int pos) {
-        RequestQueue requestQueue = Volley.newRequestQueue(list.getContext());
+        RequestQueue requestQueue = Volley.newRequestQueue(topList.getContext());
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
                 (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
@@ -119,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                             story.by = response.getString("by");
                             story.score = Integer.toString(pos);
                             stories.add(story);
-                            adapter.notifyDataSetChanged();
+                            topAdapter.notifyDataSetChanged();
                             //final String page_url = response.getString("url");
                             /*switch(pos){
                                 case 0:
@@ -173,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void get_stories_array(final String urlstories) {
 
-        RequestQueue requestQueue = Volley.newRequestQueue(list.getContext());
+        RequestQueue requestQueue = Volley.newRequestQueue(topList.getContext());
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
                 (Request.Method.GET, urlstories, null, new Response.Listener<JSONArray>() {
 
@@ -181,10 +205,10 @@ public class MainActivity extends AppCompatActivity {
                     public void onResponse(JSONArray response) {
 
                         //newStories and topStories return up to 500 ids, so checking if that is the current type
-                        int top_bound = 200;
+ /*                       int top_bound = 200;
                         if (urlstories.equals("newStories") || urlstories.equals("topStories")) {
                             top_bound = 500;
-                        }
+                        }*/
 
                         String[] title_id_list = new String[response.length()];
                         //This is where you get the data from the stored JSON object.
@@ -197,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
                             for(int y = 0; y < response.length(); y++){
                                 load_article_title(title_id_list[y],y);
                             }
-                            adapter.notifyDataSetChanged();
+                            topAdapter.notifyDataSetChanged();
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();
@@ -217,14 +241,14 @@ public class MainActivity extends AppCompatActivity {
         requestQueue.add(request);
     }
 
-    private void doSomethingPlease(){
+    private void doSomethingPlease(String source, final StoryListAdapter listAdapter){
         RequestQueue rq = Volley.newRequestQueue(this);
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, topStories, null, new Response.Listener<JSONArray>() {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, source, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 try{
-                    for (int i=0;i<response.length()/5;i++){
-                        nowMakeMeHappy(response.getString(i));
+                    for (int i=0;i<response.length()/10;i++){
+                        nowMakeMeHappy(response.getString(i),listAdapter);
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
@@ -246,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
         rq.add(jsonArrayRequest);
     }
 
-    private void nowMakeMeHappy(String id){
+    private void nowMakeMeHappy(String id, final StoryListAdapter listAdapter){
         String uri = title_url + id + ".json";
         RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
@@ -256,8 +280,10 @@ public class MainActivity extends AppCompatActivity {
                     Story story = new Story();
                     story.title = response.getString("title");
                     story.by    = response.getString("by");
+                    story.score = Integer.toString(response.getInt("score"));
+                    story.uri   = response.getString("url");
                     stories.add(story);
-                    adapter.notifyDataSetChanged();
+                    listAdapter.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
