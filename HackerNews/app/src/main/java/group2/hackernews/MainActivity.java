@@ -1,57 +1,34 @@
 package group2.hackernews;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ListView;
-import android.app.ListActivity;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.xml.transform.Source;
 
 public class MainActivity extends AppCompatActivity {
 
-    JSONObject cached;
-    Button article_1;
-    Button article_2;
-    Button article_3;
-    HackerHelper getter = HackerHelper.getInstance();
+    MainRequestQueue getter = MainRequestQueue.getInstance();
     ListView topList;
     ListView jobList;
 
@@ -72,19 +49,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*article_1 = (Button) findViewById(R.id.article1);
-        article_2 = (Button) findViewById(R.id.article2);
-        article_3 = (Button) findViewById(R.id.article3);*/
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
         //Find the main listview
         topList = (ListView) findViewById(R.id.list);
 
         topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
-        //adapter = new ArrayAdapter(this, R.layout.item_simple_text, some);
         topList.setAdapter(topAdapter);
-        //get_stories_array(topStories);
-        doSomethingPlease(topStories, topAdapter);
+        get_initial_array(topStories, topAdapter);
 
         //Storing string resources into Array
         topList.setClickable(true);
@@ -128,123 +100,18 @@ public class MainActivity extends AppCompatActivity {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
     }
-    private void load_article_title(String id, final int pos) {
-        String myUrl = title_url + id + ".json";
-        CustomJSONObjectRequest request = new CustomJSONObjectRequest
-                (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
 
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        //This is where you get the data from the stored JSON object.
-                        try {
-                            Story story = new Story();
-                            story.title = response.getString("title");
-                            story.by = response.getString("by");
-                            story.score = Integer.toString(pos);
-                            stories.add(story);
-                            topAdapter.notifyDataSetChanged();
-                            //final String page_url = response.getString("url");
-                            /*switch(pos){
-                                case 0:
-                                    article_1.setText(title);
-                                    article_1.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                                    break;
-                                case 1:
-                                    article_2.setText(title);
-                                    article_2.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                                    break;
-                                case 2:
-                                    article_3.setText(title);
-                                    article_3.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                            }*/
-
-                        } catch (Exception e) {
-                            Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Could not get data", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-//        request.setPriority(Request.Priority.HIGH);
-          getter.add(request);
-
-    }
-
-    private void get_stories_array(final String urlstories) {
-
-        CustomJSONArrayRequest request = new CustomJSONArrayRequest
-                (Request.Method.GET, urlstories, null, new Response.Listener<JSONArray>() {
-
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        //newStories and topStories return up to 500 ids, so checking if that is the current type
- /*                       int top_bound = 200;
-                        if (urlstories.equals("newStories") || urlstories.equals("topStories")) {
-                            top_bound = 500;
-                        }*/
-
-                        String[] title_id_list = new String[response.length()];
-                        //This is where you get the data from the stored JSON object.
-
-
-                        try {
-                            for(int x = 0; x < response.length(); x++) {
-                                title_id_list[x] = response.getString(x);
-                            }
-                            for(int y = 0; y < response.length(); y++){
-                                load_article_title(title_id_list[y],y);
-                            }
-                            topAdapter.notifyDataSetChanged();
-
-                        } catch (Exception e) {
-                            Toast.makeText(MainActivity.this, "ErrorArr", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Could not get data", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-//        request.setPriority(Request.Priority.HIGH);
-          getter.add(request);
-    }
-
-    private void doSomethingPlease(String source, final StoryListAdapter listAdapter){
+    //Gets the JSON Array filled with article ID's depending on the type of post.  ie Top, Show, Ask...
+    private void get_initial_array(String source, final StoryListAdapter listAdapter){
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, source, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                //uses the id list to make a call to get detailed post info
+                //from JSON objects using the ID's in the array.
                 try{
                     for (int i=0;i<response.length()/10;i++){
-                        nowMakeMeHappy(response.getString(i),listAdapter);
+                        //Make the JSON request for each id.
+                        fill_text_list(response.getString(i), listAdapter);
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
@@ -266,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
         getter.add(jsonArrayRequest);
     }
 
-    private void nowMakeMeHappy(String id, final StoryListAdapter listAdapter){
+    //Gets a JSON Object from HackerNews and populates the list.
+    private void fill_text_list(String id, final StoryListAdapter listAdapter){
         String uri = title_url + id + ".json";
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
             @Override
