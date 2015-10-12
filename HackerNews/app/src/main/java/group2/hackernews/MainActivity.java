@@ -47,7 +47,7 @@ import javax.xml.transform.Source;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    JSONObject cached;
     Button article_1;
     Button article_2;
     Button article_3;
@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(browserIntent);
     }
     private void load_article_title(String id, final int pos) {
-        RequestQueue requestQueue = Volley.newRequestQueue(topList.getContext());
         String myUrl = title_url + id + ".json";
         CustomJSONObjectRequest request = new CustomJSONObjectRequest
                 (Request.Method.GET, myUrl, null, new Response.Listener<JSONObject>() {
@@ -191,13 +190,12 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 //        request.setPriority(Request.Priority.HIGH);
-//        getter.add(request);
-        requestQueue.add(request);
+          getter.add(request);
+
     }
 
     private void get_stories_array(final String urlstories) {
 
-        RequestQueue requestQueue = Volley.newRequestQueue(topList.getContext());
         CustomJSONArrayRequest request = new CustomJSONArrayRequest
                 (Request.Method.GET, urlstories, null, new Response.Listener<JSONArray>() {
 
@@ -237,12 +235,10 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 //        request.setPriority(Request.Priority.HIGH);
-//        getter.add(request);
-        requestQueue.add(request);
+          getter.add(request);
     }
 
     private void doSomethingPlease(String source, final StoryListAdapter listAdapter){
-        RequestQueue rq = Volley.newRequestQueue(this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, source, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
@@ -267,12 +263,11 @@ public class MainActivity extends AppCompatActivity {
                         .show();
             }
         });
-        rq.add(jsonArrayRequest);
+        getter.add(jsonArrayRequest);
     }
 
     private void nowMakeMeHappy(String id, final StoryListAdapter listAdapter){
         String uri = title_url + id + ".json";
-        RequestQueue rq = Volley.newRequestQueue(this);
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
@@ -301,6 +296,6 @@ public class MainActivity extends AppCompatActivity {
                         .show();
             }
         });
-        rq.add(jsonObjectRequest);
+        getter.add(jsonObjectRequest);
     }
 }
