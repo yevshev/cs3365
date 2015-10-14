@@ -6,7 +6,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-
+//Sets up the Volley queue for Asynchronous data retrieval
 public class MainRequestQueue extends Application {
     private RequestQueue mRequestQueue;
     private static MainRequestQueue mMainRequestQueue;

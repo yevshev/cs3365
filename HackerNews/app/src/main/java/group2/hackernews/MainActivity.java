@@ -51,12 +51,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
+
         //Find the main listview
         topList = (ListView) findViewById(R.id.list);
 
+        //get the list ready to populate
         topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
         topList.setAdapter(topAdapter);
-        get_initial_array(topStories, topAdapter);
+
+        populate_list(topStories, topAdapter);
 
         //Storing string resources into Array
         topList.setClickable(true);
@@ -96,13 +99,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    //open a browser using url
     public void browser1(String url){
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
     }
 
     //Gets the JSON Array filled with article ID's depending on the type of post.  ie Top, Show, Ask...
-    private void get_initial_array(String source, final StoryListAdapter listAdapter){
+    private void populate_list(String source, final StoryListAdapter listAdapter){
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, source, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
