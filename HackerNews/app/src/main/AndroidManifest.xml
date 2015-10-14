@@ -10,7 +10,7 @@
         android:label="GoldFish"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".HackerHelper">
+        android:name=".MainRequestQueue">
 
         <activity
             android:name=".MainActivity"

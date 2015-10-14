@@ -6,22 +6,22 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-
-public class HackerHelper extends Application {
+//Sets up the Volley queue for Asynchronous data retrieval
+public class MainRequestQueue extends Application {
     private RequestQueue mRequestQueue;
-    private static HackerHelper mHackerHelper;
+    private static MainRequestQueue mMainRequestQueue;
 
 
-    public static final String TAG = HackerHelper.class.getName();
+    public static final String TAG = MainRequestQueue.class.getName();
     @Override
     public void onCreate(){
         super.onCreate();
-        mHackerHelper = this;
+        mMainRequestQueue = this;
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
     }
 
-    public static synchronized HackerHelper getInstance(){
-        return mHackerHelper;
+    public static synchronized MainRequestQueue getInstance(){
+        return mMainRequestQueue;
     }
 
     public RequestQueue getRequestQueue() {

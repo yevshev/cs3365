@@ -25,6 +25,7 @@ public class StoryListAdapter extends ArrayAdapter<Story> {
     }
 
     @Override
+    //Creates the textview in the layout to be displayed in the listview
     public View getView(int position, View convertView, ViewGroup parent){
         View v = convertView;
         if(v == null){
