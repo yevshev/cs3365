@@ -28,20 +28,19 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    MainRequestQueue getter = MainRequestQueue.getInstance();
     ListView topList;
     ListView jobList;
 
-    String title_url = "https://hacker-news.firebaseio.com/v0/item/";
+    API_Getter processor = new API_Getter();
 
+    private ArrayList<Story> stories = new ArrayList<>();
 
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
     final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
     final static String jobStories = "https://hacker-news.firebaseio.com/v0/jobstories.json";
     final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
 
-    private ArrayList<Story> stories = new ArrayList<>();
-    private ArrayList<String> some = new ArrayList<>();
+
     private StoryListAdapter topAdapter;
     private StoryListAdapter jobAdapter;
 
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
         topList.setAdapter(topAdapter);
 
-        populate_list(topStories, topAdapter);
+        processor.populate_list(topStories, topAdapter);
 
         //Storing string resources into Array
         topList.setClickable(true);
@@ -103,71 +102,5 @@ public class MainActivity extends AppCompatActivity {
     public void browser1(String url){
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
-    }
-
-    //Gets the JSON Array filled with article ID's depending on the type of post.  ie Top, Show, Ask...
-    private void populate_list(String source, final StoryListAdapter listAdapter){
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, source, null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                //uses the id list to make a call to get detailed post info
-                //from JSON objects using the ID's in the array.
-                try{
-                    for (int i=0;i<response.length()/10;i++){
-                        //Make the JSON request for each id.
-                        fill_text_list(response.getString(i), listAdapter);
-                    }
-                } catch (JSONException e){
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                new AlertDialog.Builder(getApplicationContext())
-                        .setMessage(error.getMessage())
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .show();
-            }
-        });
-        getter.add(jsonArrayRequest);
-    }
-
-    //Gets a JSON Object from HackerNews and populates the list.
-    private void fill_text_list(String id, final StoryListAdapter listAdapter){
-        String uri = title_url + id + ".json";
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, uri, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Story story = new Story();
-                    story.title = response.getString("title");
-                    story.by    = response.getString("by");
-                    story.score = Integer.toString(response.getInt("score"));
-                    story.uri   = response.getString("url");
-                    stories.add(story);
-                    listAdapter.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                new AlertDialog.Builder(getApplicationContext())
-                        .setMessage(error.getMessage())
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .show();
-            }
-        });
-        getter.add(jsonObjectRequest);
     }
 }

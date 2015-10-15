@@ -24,6 +24,10 @@ public class StoryListAdapter extends ArrayAdapter<Story> {
         this.stories = items;
     }
 
+    public ArrayList<Story> get_stories(){
+        return stories;
+    }
+
     @Override
     //Creates the textview in the layout to be displayed in the listview
     public View getView(int position, View convertView, ViewGroup parent){
