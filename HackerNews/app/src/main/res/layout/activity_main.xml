@@ -4,12 +4,21 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/MainList">
+    tools:context="group2.hackernews.MainActivity" >
+
 
                 <ListView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:id="@+id/list"
                     tools:listitem="@layout/list_item" />
+
+                <WebView
+                    android:id="@+id/webView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:listitem="@layout/list_item" />
+
+
 
 </RelativeLayout>

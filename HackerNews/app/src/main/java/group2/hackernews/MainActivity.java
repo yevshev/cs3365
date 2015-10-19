@@ -1,5 +1,7 @@
 package group2.hackernews;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -7,9 +9,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.ListView;
@@ -26,7 +30,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+@SuppressLint("SetJavaScriptEnabled")
+public class MainActivity extends Activity {
 
     MainRequestQueue getter = MainRequestQueue.getInstance();
     ListView topList;
@@ -44,11 +49,16 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> some = new ArrayList<>();
     private StoryListAdapter topAdapter;
     private StoryListAdapter jobAdapter;
+    private WebView MyWeb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MyWeb = (WebView) findViewById(R.id.webView);
+        MyWeb.getSettings().setJavaScriptEnabled(true);
+        MyWeb.getSettings().setSaveFormData(true);
+        MyWeb.loadUrl("https://new.ycombinator.com");
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
 
@@ -84,20 +94,6 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     //open a browser using url
     public void browser1(String url){
