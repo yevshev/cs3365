@@ -1,8 +1,6 @@
 package group2.hackernews;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,15 +12,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.ListView;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -34,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     API_Getter processor = new API_Getter();
 
     private ArrayList<Story> stories = new ArrayList<>();
+    private ArrayList<Story> comments = new ArrayList<>();
 
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
     final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
@@ -56,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
 
         //get the list ready to populate
         topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
+
         topList.setAdapter(topAdapter);
 
-        processor.populate_list(topStories, topAdapter);
+        processor.use_url_to_get_IDArray_then_process(topStories, topAdapter);
 
         //Storing string resources into Array
         topList.setClickable(true);
@@ -66,13 +58,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-
                 Story o = (Story) topList.getItemAtPosition(position);
-                if (o.uri == null)
+                JSONArray arr = o.getKids();
+                if (o.getUri() == null)
                     Toast.makeText(getApplicationContext(), "Can't open article", Toast.LENGTH_LONG).show();
-                browser1(o.uri);
+                browser1(o.getUri());
             }
-        });
+    });
         progressDialog.dismiss();
     }
 //

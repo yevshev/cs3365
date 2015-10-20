@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -19,10 +20,14 @@ import java.util.ArrayList;
 public class StoryListAdapter extends ArrayAdapter<Story> {
     private ArrayList<Story> stories;
 
+    //1=need title,2=need text
+    private int call_type;
+
     public StoryListAdapter(Context context, int textViewResourceId, ArrayList<Story> items){
         super(context, textViewResourceId, items);
         this.stories = items;
     }
+
 
     public ArrayList<Story> get_stories(){
         return stories;
@@ -36,14 +41,13 @@ public class StoryListAdapter extends ArrayAdapter<Story> {
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.list_item, null);
         }
+
         Story o = stories.get(position);
         TextView title = (TextView) v.findViewById(R.id.title);
         TextView by = (TextView) v.findViewById(R.id.by);
-        //TextView score = (TextView) v.findViewById(R.id.score);
-        title.setText(o.title);
-        by.setText(o.by);
-        //score.setText(o.score);
 
+        title.setText(o.getTitle());
+        by.setText(o.getBy());
         return v;
     }
 }
