@@ -1,6 +1,7 @@
 package group2.hackernews;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +21,10 @@ import java.util.ArrayList;
 public class StoryListAdapter extends ArrayAdapter<Story> {
     private ArrayList<Story> stories;
 
-    //1=need title,2=need text
-    private int call_type;
-
     public StoryListAdapter(Context context, int textViewResourceId, ArrayList<Story> items){
         super(context, textViewResourceId, items);
         this.stories = items;
     }
-
 
     public ArrayList<Story> get_stories(){
         return stories;
@@ -45,8 +42,10 @@ public class StoryListAdapter extends ArrayAdapter<Story> {
         Story o = stories.get(position);
         TextView title = (TextView) v.findViewById(R.id.title);
         TextView by = (TextView) v.findViewById(R.id.by);
+        title.setText(Html.fromHtml(o.getTitle()));
+        //title.setText(o.getTitle());
 
-        title.setText(o.getTitle());
+
         by.setText(o.getBy());
         return v;
     }

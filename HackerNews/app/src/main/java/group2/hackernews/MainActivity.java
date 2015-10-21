@@ -13,6 +13,7 @@ import android.widget.Toast;
 import android.widget.ListView;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -20,10 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     ListView topList;
     ListView jobList;
-
-    API_Getter processor = new API_Getter();
-
-    private ArrayList<Story> stories = new ArrayList<>();
+    API_Getter processor;
     private ArrayList<Story> comments = new ArrayList<>();
 
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
@@ -31,8 +29,6 @@ public class MainActivity extends AppCompatActivity {
     final static String jobStories = "https://hacker-news.firebaseio.com/v0/jobstories.json";
     final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
 
-
-    private StoryListAdapter topAdapter;
     private StoryListAdapter jobAdapter;
 
     @Override
@@ -45,12 +41,8 @@ public class MainActivity extends AppCompatActivity {
         //Find the main listview
         topList = (ListView) findViewById(R.id.list);
 
-        //get the list ready to populate
-        topAdapter = new StoryListAdapter(topList.getContext(), R.layout.list_item, stories);
-
-        topList.setAdapter(topAdapter);
-
-        processor.use_url_to_get_IDArray_then_process(topStories, topAdapter);
+        processor = new API_Getter(topList);
+        processor.use_url_to_get_IDArray_then_process(topStories);
 
         //Storing string resources into Array
         topList.setClickable(true);
@@ -59,10 +51,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Story o = (Story) topList.getItemAtPosition(position);
-                JSONArray arr = o.getKids();
+                processor.clear_processing();
                 if (o.getUri() == null)
                     Toast.makeText(getApplicationContext(), "Can't open article", Toast.LENGTH_LONG).show();
-                browser1(o.getUri());
+                for(int i = 0; i < o.getKids().length(); i++){
+                    try {
+                        processor.get_JSON_from_HN_and_set_UI_elements(o.getKids().getString(i));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                topList.setClickable(false);
             }
     });
         progressDialog.dismiss();
