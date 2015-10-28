@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     ListView jobList;
     API_Getter processor;
     private ArrayList<Story> comments = new ArrayList<>();
+    Intent intent;
 
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
     final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
@@ -52,15 +53,13 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Story o = (Story) topList.getItemAtPosition(position);
                 processor.clear_processing();
+                String string;
+                intent = new Intent(MainActivity.this, CommentActivity.class);
                 if (o.getUri() == null)
                     Toast.makeText(getApplicationContext(), "Can't open article", Toast.LENGTH_LONG).show();
-                for(int i = 0; i < o.getKids().length(); i++){
-                    try {
-                        processor.get_JSON_from_HN_and_set_UI_elements(o.getKids().getString(i));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+                string = o.getKids().toString();
+                intent.putExtra("kids", string);
+                startActivity(intent);
                 topList.setClickable(false);
             }
     });
