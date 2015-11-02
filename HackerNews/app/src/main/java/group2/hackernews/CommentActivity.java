@@ -29,6 +29,7 @@ public class CommentActivity extends AppCompatActivity {
             jarray = new JSONArray(list);
             commentList = (ListView) findViewById(R.id.clist);
             processor = new API_Getter(commentList);
+            display_comments(jarray);
             for(int i = 0; i < jarray.length(); i++){
                 processor.get_JSON_from_HN_and_set_UI_elements(jarray.getString(i));
             }
@@ -46,6 +47,9 @@ public class CommentActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+    public void display_comments(JSONArray jarray){
+
     }
 
 }

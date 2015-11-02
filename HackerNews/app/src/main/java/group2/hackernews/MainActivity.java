@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
 
         //Storing string resources into Array
         topList.setClickable(true);
-        topList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        topList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 
             @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
                 Story o = (Story) topList.getItemAtPosition(position);
-                processor.clear_processing();
+                //processor.clear_processing();
                 String string;
                 intent = new Intent(MainActivity.this, CommentActivity.class);
                 if (o.getUri() == null)
@@ -60,9 +60,23 @@ public class MainActivity extends AppCompatActivity {
                 string = o.getKids().toString();
                 intent.putExtra("kids", string);
                 startActivity(intent);
-                topList.setClickable(false);
+                return true;
             }
-    });
+        });
+        topList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                Story o = (Story) topList.getItemAtPosition(position);
+                //processor.clear_processing();
+                String string;
+                intent = new Intent(MainActivity.this, CommentActivity.class);
+                if (o.getUri() == null)
+                    Toast.makeText(getApplicationContext(), "Can't open article", Toast.LENGTH_LONG).show();
+                else
+                    browser1(o.getUri().toString());
+            }
+        });
         progressDialog.dismiss();
     }
 //

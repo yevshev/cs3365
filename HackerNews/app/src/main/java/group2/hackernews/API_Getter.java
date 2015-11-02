@@ -97,20 +97,24 @@ public class API_Getter extends AppCompatActivity {
     private Story fill_story(JSONObject obj){
         Story story = new Story();
         try {
+            //This is for normal stories
             story.setTitle(obj.getString("title"));
+            story.setBy(obj.getString("by"));
+            story.setScore(Integer.toString(obj.getInt("score")));
         } catch (JSONException e) {
+            //This is for comments
             try {
                 story.setTitle(obj.getString("text"));
+                story.setBy(obj.getString("by"));
             } catch (JSONException e1) {
                 e1.printStackTrace();
             }
             e.printStackTrace();
         }
         try {
-            story.setScore(Integer.toString(obj.getInt("score")));
+
             story.setUri(obj.getString("url"));
             story.setType(obj.getString("type"));
-            story.setBy(obj.getString("by"));
             story.setKids(obj.getJSONArray("kids"));
             story.setText(obj.getString("text"));
         } catch (JSONException e) {
