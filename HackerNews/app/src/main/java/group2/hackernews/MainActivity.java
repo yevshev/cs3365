@@ -37,16 +37,11 @@ public class MainActivity extends Activity {
     final static String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json";
 
     private StoryListAdapter jobAdapter;
-    private WebView MyWeb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MyWeb = (WebView) findViewById(R.id.webView);
-        MyWeb.getSettings().setJavaScriptEnabled(true);
-        MyWeb.getSettings().setSaveFormData(true);
-        MyWeb.loadUrl("https://new.ycombinator.com");
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
 
@@ -90,14 +85,12 @@ public class MainActivity extends Activity {
         });
         progressDialog.dismiss();
     }
-//
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
 
     //open a browser using url
     public void browser1(String url){
