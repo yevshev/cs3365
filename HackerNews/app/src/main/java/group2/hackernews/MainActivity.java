@@ -7,8 +7,11 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,13 +26,14 @@ import org.json.JSONException;
 import java.util.ArrayList;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     ListView topList;
     ListView jobList;
     API_Getter processor;
     private ArrayList<Story> comments = new ArrayList<>();
     Intent intent;
+    private int story_tracker = 1;
 
     final static String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json";
     final static String askStories = "https://hacker-news.firebaseio.com/v0/askstories.json";
@@ -43,6 +47,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
 
         //Find the main listview
@@ -50,6 +56,29 @@ public class MainActivity extends Activity {
 
         processor = new API_Getter(topList);
         processor.use_url_to_get_IDArray_then_process(topStories);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                processor.clear_processing();
+                if(story_tracker == 1){
+                    processor.use_url_to_get_IDArray_then_process(askStories);
+                    story_tracker++;
+                }
+                else if (story_tracker == 2){
+                    processor.use_url_to_get_IDArray_then_process(jobStories);
+                    story_tracker++;
+                }
+                else if (story_tracker == 3){
+                    processor.use_url_to_get_IDArray_then_process(newStories);
+                    story_tracker++;
+                }
+                else {
+                    processor.use_url_to_get_IDArray_then_process(topStories);
+                    story_tracker = 1;
+                }
+            }
+        });
 
         //Storing string resources into Array
         topList.setClickable(true);
