@@ -94,6 +94,7 @@ public class API_Getter extends AppCompatActivity {
         getter.add(jsonObjectRequest);
     }
 
+
     private Story fill_story(JSONObject obj){
         Story story = new Story();
         try {
