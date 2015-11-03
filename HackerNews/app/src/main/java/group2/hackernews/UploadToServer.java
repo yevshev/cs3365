@@ -205,4 +205,43 @@ public class UploadToServer extends Activity {
 
         } // End else block
     }
+
+ /*   protected String doInBackground(String... params) {
+        // perform long running operation operation
+
+        SharedPreferences settings = context.getSharedPreferences(PREFS_FILE, 0);
+        String server = settings.getString("server", "");
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost(server);
+
+        try {
+            // Add your data
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+            nameValuePairs.add(new BasicNameValuePair("android", editText1.getText().toString()));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            try {
+                httpclient.execute(httppost);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+
+            // Execute HTTP Post Request
+            // ResponseHandler<String> responseHandler=new BasicResponseHandler();
+            // String responseBody = httpclient.execute(httppost, responseHandler);
+
+            // if (Boolean.parseBoolean(responseBody)) {
+            //	dialog.cancel();
+            // }
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            Log.i("HTTP Failed", e.toString());
+        }
+
+        return null;
+    } */
 }
