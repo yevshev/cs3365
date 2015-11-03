@@ -22,7 +22,6 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
-@SuppressLint("SetJavaScriptEnabled")
 public class MainActivity extends Activity {
 
     ListView topList;
@@ -38,10 +37,18 @@ public class MainActivity extends Activity {
 
     private StoryListAdapter jobAdapter;
 
+    @SuppressLint("SetJavaScriptEnabled") //test
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String loginURL = "https://news.ycombinator.com/login" //test
+        WebView view = (WebView) findViewById(R.id.webView);  //test
+
+        view.getSettings()setJavaScriptEnabled(true);  //test
+        view.getSettings()setSaveFormData(true);
+        view.loadUrl(loginURL); //test
 
         ProgressDialog progressDialog = ProgressDialog.show(this, "Loading", "Loading...");
 
