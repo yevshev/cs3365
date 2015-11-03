@@ -14,11 +14,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -38,6 +41,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -72,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*article_1 = (Button) findViewById(R.id.article1);
+        /*WebView webView = (WebView) findViewById(R.id.webView2);
+        webView.loadUrl("file:///android_asset/fishMovingSmall.gif");*/
+        /**//*article_1 = (Button) findViewById(R.id.article1);
         article_2 = (Button) findViewById(R.id.article2);
         article_3 = (Button) findViewById(R.id.article3);*/
 
@@ -99,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                 browser1(o.uri);
             }
         });
+
+        registerForContextMenu(topList);
         progressDialog.dismiss();
     }
 
@@ -116,10 +124,10 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+/*        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -144,38 +152,7 @@ public class MainActivity extends AppCompatActivity {
                             story.score = Integer.toString(pos);
                             stories.add(story);
                             topAdapter.notifyDataSetChanged();
-                            //final String page_url = response.getString("url");
-                            /*switch(pos){
-                                case 0:
-                                    article_1.setText(title);
-                                    article_1.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                                    break;
-                                case 1:
-                                    article_2.setText(title);
-                                    article_2.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                                    break;
-                                case 2:
-                                    article_3.setText(title);
-                                    article_3.setOnClickListener(
-                                            new Button.OnClickListener() {
-                                                public void onClick(View v) {
-                                                    browser1(page_url);
-                                                }
-                                            }
-                                    );
-                            }*/
+
 
                         } catch (Exception e) {
                             Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
@@ -248,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONArray response) {
                 try{
                     for (int i=0;i<response.length()/10;i++){
-                        nowMakeMeHappy(response.getString(i),listAdapter);
+                        nowMakeMeHappy(response.getString(i), listAdapter);
                     }
                 } catch (JSONException e){
                     e.printStackTrace();
@@ -302,5 +279,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         rq.add(jsonObjectRequest);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.list) {
+            ListView lv = (ListView) v;
+            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) menuInfo;
+            Story obj = (Story) lv.getItemAtPosition(acmi.position);
+
+            /*menu.setHeaderTitle(obj.title);
+            menu.add(obj.by);
+            menu.add(obj.score);*/
+
+            LayoutInflater layoutInflater = this.getLayoutInflater();
+            View header = layoutInflater.inflate(R.layout.list_item, null);
+
+            TextView title = (TextView) header.findViewById(R.id.title);
+            TextView by = (TextView) header.findViewById(R.id.by);
+            title.setText(obj.title);
+            by.setText(obj.by);
+
+
+            menu.setHeaderView(header);
+            menu.add("View Comments");
+            menu.add("Upvote");
+
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.menu_main,menu);
+        }
     }
 }
