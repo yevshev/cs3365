@@ -22,9 +22,16 @@ public class CommentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_comment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         JSONArray jarray;
+
+        //Get the intent
         Bundle extras = getIntent().getExtras();
+
+        //save it as a string
         String list = extras.getString("kids");
+
+        //Convert the string into a JSONArray, make a new API_getter for the new ListView, Fill the ListView
         try {
             jarray = new JSONArray(list);
             commentList = (ListView) findViewById(R.id.clist);
@@ -41,6 +48,7 @@ public class CommentActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        //This currently does nothing, but I don't want to remove it yet in case we decide to implement more functionality
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

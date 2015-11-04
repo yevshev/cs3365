@@ -81,19 +81,23 @@ public class API_Getter extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                new AlertDialog.Builder(getApplicationContext())
-                        .setMessage(error.getMessage())
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .show();
+                try{
+                    new AlertDialog.Builder(getApplicationContext())
+                            .setMessage(error.getMessage())
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .show();
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+
             }
         });
         getter.add(jsonObjectRequest);
     }
-
 
     private Story fill_story(JSONObject obj){
         Story story = new Story();
@@ -103,7 +107,7 @@ public class API_Getter extends AppCompatActivity {
             story.setBy(obj.getString("by"));
             story.setScore(Integer.toString(obj.getInt("score")));
         } catch (JSONException e) {
-            //This is for comments
+            //This is for comments due to comments having no title
             try {
                 story.setTitle(obj.getString("text"));
                 story.setBy(obj.getString("by"));
